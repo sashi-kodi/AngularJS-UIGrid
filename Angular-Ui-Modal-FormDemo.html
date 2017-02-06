@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Angular Ui Modal Form Demo</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
+
+
+</head>
+<body ng-app="studentsApp">
+<div class="container">
+    <div ng-controller="studentsController">
+
+        <h1>Students List</h1>
+        <button class="btn btn-success" ng-click="addStudent()">Add a Student</button>
+        <br><br>
+
+    <table class="table table-hover">
+        <thead>
+         <tr>
+             <td>Name</td>
+             <td>Phone</td>
+             <td>Action</td>
+         </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="student in students">
+              <td> {{student.name}}</td>
+              <td>{{student.phone}}</td>
+              <td><button class="btn btn-info" ng-click="update(student,$index)">Update</button></td>
+              <td><button class="btn btn-danger" ng-click="delete(student,$index)">Delete</button></td>
+          </tr>
+        </tbody>
+    </table>
+
+    </div>
+</div>
+<script>
+    var studentsApp = angular.module('studentsApp', ['ui.bootstrap']);
+    studentsApp.controller('StudentModalUpdateController', function($scope,$uibModalInstance,student){
+        $scope.title ="Update";
+        $scope.stud = student;
+        $scope.ok = function(){
+            $uibModalInstance.close($scope.stud);
+        };
+
+        $scope.cancel = function(){
+            $scope.stud = student;
+            $uibModalInstance.dismiss('cancel');
+        };
+
+    });
+    studentsApp.controller('StudentModalDeleteController', function($scope,$uibModalInstance,studentname){
+        $scope.studentname = studentname;
+        $scope.ok = function(){
+            $uibModalInstance.close($scope.studentname);
+        };
+
+        $scope.cancel = function(){
+
+            $uibModalInstance.dismiss('cancel');
+        };
+
+    });
+    studentsApp.controller('StudentModalAddController', function($scope,$uibModalInstance){
+        $scope.title ="Add";
+        $scope.stud={name:"",phone:""};
+        $scope.ok = function(){
+            console.log($scope.stud);
+            $uibModalInstance.close($scope.stud);
+        };
+
+        $scope.cancel = function(){
+
+            $uibModalInstance.dismiss('cancel');
+        };
+
+    });
+    studentsApp.controller('studentsController', function($scope,$uibModal){
+
+        $scope.students = [{name:'sashi', phone:4085060109},{name:'sekhar', phone:4087545625}];
+
+        $scope.addStudent = function(){
+            var modalInstance = $uibModal.open({
+                templateUrl:'partials/StudentModal.html',
+                controller:'StudentModalAddController'
+            });
+            modalInstance.result.then(function(newStudent){
+                console.log(newStudent);
+                $scope.students.push(newStudent);
+            }, function(){
+                console.log("New student details were not entered");
+            });
+        };
+
+        $scope.delete = function(stud,index){
+
+            var modalInstance = $uibModal.open({
+                templateUrl:'partials/StudentModalDelete.html',
+                controller: 'StudentModalDeleteController',
+                resolve:{
+                    studentname : function(){
+                        return stud.name;
+                    }
+                }
+            });
+            modalInstance.result.then(function(studentname){
+               $scope.students.splice(index,1);
+
+            },function(){
+                console.log("the user cancelled the delete operation");
+            });
+        };
+
+        $scope.update = function(stud,index){
+            var student1={name:stud.name, phone:stud.phone};
+
+          var modalInstance = $uibModal.open({
+              templateUrl:'./partials/StudentModal.html',
+              controller:'StudentModalUpdateController',
+              resolve:{
+                  student : function(){
+                      return student1;
+                  }
+              }
+          });
+
+            modalInstance.result.then(function(newstud){
+                console.log(newstud.name);
+                        console.log(newstud.phone);
+                        $scope.students[index].name = newstud.name;
+                        $scope.students[index].phone = newstud.phone;
+            },function(){
+                console.log('The user has cancelled the update operation');
+            });
+
+
+        };
+    });
+    </script>
+</body>
+</html>
+   
