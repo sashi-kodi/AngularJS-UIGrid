@@ -1,2 +1,2 @@
 # AngularJS-UIGrid
-Angular js UI grid practice assignments
+Angular js UI grid programs
